@@ -36,7 +36,7 @@ public class AppRunner {
         print("В автомате доступны:");
         showProducts(products);
 
-        print("Монет на сумму: " + moneyAcceptor.getAmount());
+        print(moneyAcceptor.showBalance());
 
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         allowProducts.addAll(getAllowedProducts().toArray());
@@ -88,7 +88,6 @@ public class AppRunner {
         String actionLetter;
         boolean isEmpty;
         do {
-            print("Выберите действие:");
             actionLetter = new Scanner(System.in).nextLine().trim();
             isEmpty = actionLetter.isBlank();
             if (isEmpty) {
@@ -108,3 +107,4 @@ public class AppRunner {
         System.out.println(msg);
     }
 }
+
