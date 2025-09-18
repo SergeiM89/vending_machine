@@ -64,6 +64,17 @@ public class AppRunner {
                 isExit = true;
                 return;
             }
+            if ("a".equalsIgnoreCase(action)) {
+                int amount = moneyAcceptor.addBalance();
+                if (amount == -1) {
+                    return;
+                }
+                if (moneyAcceptor.getName().equals("card") && amount < minPrice() && moneyAcceptor.getAmount()==0) {
+                    System.out.printf("Минимально допустимая сумма пополнения %d%n", minPrice());
+                } else {
+                    moneyAcceptor.setAmount(moneyAcceptor.getAmount() + amount);
+                }
+            }
             ActionLetter actionLetter = ActionLetter.valueOf(action.toUpperCase());
             for (int i = 0; i < products.size(); i++) {
                 if (products.get(i).getActionLetter().equals(actionLetter)) {
@@ -101,6 +112,14 @@ public class AppRunner {
         for (int i = 0; i < products.size(); i++) {
             print(products.get(i).toString());
         }
+    }
+
+    private int minPrice() {
+        int min = Integer.MAX_VALUE;
+        for (int i=0; i < products.size(); i++) {
+            min = Math.min(min, products.get(i).getPrice());
+        }
+        return min;
     }
 
     private void print(String msg) {

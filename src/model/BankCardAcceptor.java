@@ -10,28 +10,44 @@ public class BankCardAcceptor extends MoneyAcceptor {
     public BankCardAcceptor() {
         super();
         this.name = "card";
+        this.cardNumber = "";
+        this.cardOTP = "";
     }
 
     @Override
     public int addBalance() {
-        if (getCardNumber().equalsIgnoreCase("h") || getCardOTP().equalsIgnoreCase("h")) {
-            return -1;
-        } else {
-            while (true) {
-                System.out.print("Сколько денег хотите закинуть на баланс: ");
-                try {
-                    int amount = new Scanner(System.in).nextInt();
-                    if (amount <= 0) {
-                        throw new IllegalArgumentException("Введите положительное число. Попробуйте еще раз.");
-                    }
-                    return amount;
-                } catch (InputMismatchException ime) {
-                    System.out.println("Вы ввели нецелое число или строку.");
-                } catch (IllegalArgumentException iae) {
-                    System.out.println(iae.getMessage());
+        String cardNumberNew;
+        String cardOTPNew;
+
+        if (this.cardNumber.isEmpty() && this.cardOTP.isEmpty()) {
+            cardNumberNew = askCardNumber();
+            if (cardNumberNew.equalsIgnoreCase("h")) {
+                return -1;
+            }
+            cardOTPNew = askCardOTP();
+            if (cardOTPNew.equalsIgnoreCase("h")) {
+                return -1;
+            }
+            this.cardNumber = cardNumberNew;
+            this.cardOTP = cardOTPNew;
+            System.out.println("Ваша карта сохранена.");
+        }
+
+        while (true) {
+            System.out.print("Сколько денег хотите закинуть на баланс: ");
+            try {
+                int amount = new Scanner(System.in).nextInt();
+                if (amount <= 0) {
+                    throw new IllegalArgumentException("Введите положительное число. Попробуйте еще раз.");
                 }
+                return amount;
+            } catch (InputMismatchException ime) {
+                System.out.println("Вы ввели нецелое число или строку.");
+            } catch (IllegalArgumentException iae) {
+                System.out.println(iae.getMessage());
             }
         }
+
     }
 
     @Override
@@ -47,11 +63,11 @@ public class BankCardAcceptor extends MoneyAcceptor {
         return cardNumber.matches("\\d{6}");
     }
 
-    private String getCardNumber() {
+    private String askCardNumber() {
         String cardNumber;
         boolean isEmpty, isValid = false;
         do {
-            System.out.print("Введите номер карты (или h - для отмены): ");
+            System.out.print("Введите номер карты (16 цифр или \"h\" - для отмены): ");
             cardNumber = new Scanner(System.in).nextLine().trim();
             isEmpty = cardNumber.isBlank();
             if (isEmpty) {
@@ -69,11 +85,11 @@ public class BankCardAcceptor extends MoneyAcceptor {
         return cardNumber;
     }
 
-    private String getCardOTP() {
+    private String askCardOTP() {
         String cardOTP;
         boolean isEmpty, isValid = false;
         do {
-            System.out.print("Введите одноразовый пароль для карты (или h - для отмены): ");
+            System.out.print("Введите одноразовый пароль для карты (6 цифр или \"h\" - для отмены): ");
             cardOTP = new Scanner(System.in).nextLine().trim();
             isEmpty = cardOTP.isBlank();
             if (isEmpty) {
@@ -90,5 +106,4 @@ public class BankCardAcceptor extends MoneyAcceptor {
         } while (isEmpty || !isValid);
         return cardOTP;
     }
-
 }
