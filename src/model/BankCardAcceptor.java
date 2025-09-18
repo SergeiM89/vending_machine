@@ -1,7 +1,7 @@
 package model;
 
 public class BankCardAcceptor extends MoneyAcceptor {
-    private long cardNumber;
+    private String cardNumber;
     private String cardPassword;
 
     public BankCardAcceptor() {

@@ -55,6 +55,7 @@ public class AppRunner {
     }
 
     private void chooseAction(UniversalArray<Product> products) {
+        print (" a - Пополнить баланс");
         showActions(products);
         print(" h - Выйти");
         String action = fromConsole().substring(0, 1);
@@ -63,8 +64,9 @@ public class AppRunner {
                 isExit = true;
                 return;
             }
+            ActionLetter actionLetter = ActionLetter.valueOf(action.toUpperCase());
             for (int i = 0; i < products.size(); i++) {
-                if (products.get(i).getActionLetter().equals(ActionLetter.valueOf(action.toUpperCase()))) {
+                if (products.get(i).getActionLetter().equals(actionLetter)) {
                     moneyAcceptor.setAmount(moneyAcceptor.getAmount() - products.get(i).getPrice());
                     print("Вы купили " + products.get(i).getName());
                     break;
@@ -83,7 +85,17 @@ public class AppRunner {
     }
 
     private String fromConsole() {
-        return new Scanner(System.in).nextLine();
+        String actionLetter;
+        boolean isEmpty;
+        do {
+            print("Выберите действие:");
+            actionLetter = new Scanner(System.in).nextLine().trim();
+            isEmpty = actionLetter.isBlank();
+            if (isEmpty) {
+                print("Вы ввели пустую строку. Попробуйте еще раз.");
+            }
+        } while (isEmpty);
+        return actionLetter;
     }
 
     private void showProducts(UniversalArray<Product> products) {
