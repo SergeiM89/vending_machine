@@ -9,7 +9,7 @@ public class AppRunner {
 
     private final UniversalArray<Product> products = new UniversalArrayImpl<>();
 
-    private final CoinAcceptor coinAcceptor;
+    private final MoneyAcceptor moneyAcceptor;
 
     private static boolean isExit = false;
 
@@ -22,7 +22,7 @@ public class AppRunner {
                 new Mars(ActionLetter.F, 80),
                 new Pistachios(ActionLetter.G, 130)
         });
-        coinAcceptor = new CoinAcceptor(100);
+        moneyAcceptor = new CoinAcceptor();
     }
 
     public static void run() {
@@ -36,7 +36,7 @@ public class AppRunner {
         print("В автомате доступны:");
         showProducts(products);
 
-        print("Монет на сумму: " + coinAcceptor.getAmount());
+        print(moneyAcceptor.showBalance());
 
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         allowProducts.addAll(getAllowedProducts().toArray());
@@ -47,7 +47,7 @@ public class AppRunner {
     private UniversalArray<Product> getAllowedProducts() {
         UniversalArray<Product> allowProducts = new UniversalArrayImpl<>();
         for (int i = 0; i < products.size(); i++) {
-            if (coinAcceptor.getAmount() >= products.get(i).getPrice()) {
+            if (moneyAcceptor.getAmount() >= products.get(i).getPrice()) {
                 allowProducts.add(products.get(i));
             }
         }
@@ -55,33 +55,38 @@ public class AppRunner {
     }
 
     private void chooseAction(UniversalArray<Product> products) {
-        print(" a - Пополнить баланс");
+        print (" a - Пополнить баланс");
         showActions(products);
         print(" h - Выйти");
         String action = fromConsole().substring(0, 1);
-        if ("a".equalsIgnoreCase(action)) {
-            coinAcceptor.setAmount(coinAcceptor.getAmount() + 10);
-            print("Вы пополнили баланс на 10");
-            return;
-        }
         try {
+            if ("h".equalsIgnoreCase(action)) {
+                isExit = true;
+                return;
+            }
+            if ("a".equalsIgnoreCase(action)) {
+                int amount = moneyAcceptor.addBalance();
+                if (amount == -1) {
+                    return;
+                }
+                if (moneyAcceptor.getName().equals("card") && amount < minPrice() && moneyAcceptor.getAmount()==0) {
+                    System.out.printf("Минимально допустимая сумма пополнения %d%n", minPrice());
+                } else {
+                    moneyAcceptor.setAmount(moneyAcceptor.getAmount() + amount);
+                }
+            }
+            ActionLetter actionLetter = ActionLetter.valueOf(action.toUpperCase());
             for (int i = 0; i < products.size(); i++) {
-                if (products.get(i).getActionLetter().equals(ActionLetter.valueOf(action.toUpperCase()))) {
-                    coinAcceptor.setAmount(coinAcceptor.getAmount() - products.get(i).getPrice());
+                if (products.get(i).getActionLetter().equals(actionLetter)) {
+                    moneyAcceptor.setAmount(moneyAcceptor.getAmount() - products.get(i).getPrice());
                     print("Вы купили " + products.get(i).getName());
                     break;
                 }
             }
         } catch (IllegalArgumentException e) {
-            if ("h".equalsIgnoreCase(action)) {
-                isExit = true;
-            } else {
-                print("Недопустимая буква. Попрбуйте еще раз.");
-                chooseAction(products);
-            }
+            print("Недопустимая буква. Попробуйте еще раз.");
+            chooseAction(products);
         }
-
-
     }
 
     private void showActions(UniversalArray<Product> products) {
@@ -91,7 +96,16 @@ public class AppRunner {
     }
 
     private String fromConsole() {
-        return new Scanner(System.in).nextLine();
+        String actionLetter;
+        boolean isEmpty;
+        do {
+            actionLetter = new Scanner(System.in).nextLine().trim();
+            isEmpty = actionLetter.isBlank();
+            if (isEmpty) {
+                print("Вы ввели пустую строку. Попробуйте еще раз.");
+            }
+        } while (isEmpty);
+        return actionLetter;
     }
 
     private void showProducts(UniversalArray<Product> products) {
@@ -100,7 +114,16 @@ public class AppRunner {
         }
     }
 
+    private int minPrice() {
+        int min = Integer.MAX_VALUE;
+        for (int i=0; i < products.size(); i++) {
+            min = Math.min(min, products.get(i).getPrice());
+        }
+        return min;
+    }
+
     private void print(String msg) {
         System.out.println(msg);
     }
 }
+
